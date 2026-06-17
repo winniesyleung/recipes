@@ -1,21 +1,677 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Global Flavor Cookbook</title>
-  <style>
-    body { font-family: sans-serif; margin: 2rem; }
-    .card { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; background:#fafafa; }
-    .card h3 { margin-top:0; }
-    .card p { margin:0.5rem 0; }
-    .card a { color:#0066cc; text-decoration:none; }
-    .card a:hover { text-decoration:underline; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Flavor Cookbook</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+            background-color: #fcfbf7;
+        }
+    </style>
 </head>
-<body>
-  <h1>Global Flavor Cookbook</h1>
-  <div id="recipe-list">
-    <!-- Recipe cards will be inserted here -->
-  </div>
+<body class="min-h-screen text-slate-800 antialiased selection:bg-amber-200">
+
+    <!-- Header Section -->
+    <header class="border-b border-amber-100 bg-white/90 sticky top-0 z-30 backdrop-blur-md shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div>
+                <h1 id="ui-title" class="text-2xl font-bold text-amber-900 tracking-tight">Global Flavor Cookbook</h1>
+                <p id="ui-subtitle" class="text-xs text-amber-700/80 hidden sm:block mt-0.5">Explore premium recipes with real-time trilingual conversions</p>
+            </div>
+            
+            <!-- Language Selection Switcher -->
+            <div class="flex items-center space-x-1 bg-stone-100 p-1 rounded-xl border border-stone-200">
+                <button onclick="setLanguage('zh')" id="lang-btn-zh" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+                    <span>🇭🇰</span> <span>繁中</span>
+                </button>
+                <button onclick="setLanguage('en')" id="lang-btn-en" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+                    <span>🇬🇧</span> <span>EN</span>
+                </button>
+                <button onclick="setLanguage('tl')" id="lang-btn-tl" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+                    <span>🇵🇭</span> <span>TL</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Core Layout -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Interactive Controls (Search & Tabs) -->
+        <div class="mb-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <!-- Filter Tabs -->
+            <div id="category-tabs-container" class="flex flex-wrap gap-2 order-2 lg:order-1">
+                <!-- Dynamically Inserted Categories -->
+            </div>
+
+            <!-- Recipe Live Search Bar -->
+            <div class="relative w-full lg:w-80 order-1 lg:order-2">
+                <input type="text" id="recipe-search" oninput="handleSearch(this.value)" class="w-full bg-white pl-4 pr-10 py-2.5 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-amber-600 text-sm shadow-sm transition-all">
+                <span class="absolute right-3 top-3 text-stone-400 pointer-events-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+            </div>
+        </div>
+
+        <!-- Recipe Dynamic Grid -->
+        <div id="recipe-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Recipe Cards get dynamically injected here -->
+        </div>
+    </main>
+
+    <!-- Global Recipe Pop-Up Modal View -->
+    <div id="recipe-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all" onclick="closeModal(event)">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[88vh] overflow-hidden shadow-2xl flex flex-col scale-95 transition-all duration-300 transform" id="modal-content">
+            
+            <!-- Modal Navigation Bar Header -->
+            <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50">
+                <div>
+                    <span id="modal-badge" class="text-[10px] font-bold text-amber-800 uppercase tracking-widest bg-amber-100 px-2.5 py-0.5 rounded-md">Category</span>
+                    <h2 id="modal-title" class="text-xl font-bold text-stone-900 mt-1">Recipe Title</h2>
+                </div>
+                <button onclick="toggleModalVisibility(false)" class="p-2 hover:bg-stone-200/60 rounded-full text-stone-400 hover:text-stone-700 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Scrollable Content Frame -->
+            <div class="overflow-y-auto flex-grow p-6">
+                <!-- Info Panel and Metrics Board -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Link & Cross Reference Box -->
+                    <div class="md:col-span-2 bg-stone-50 border border-stone-200/60 rounded-2xl p-5 flex flex-col justify-between">
+                        <div>
+                            <h4 id="lbl-source-heading" class="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-2">Recipe Source Connection</h4>
+                            <a id="modal-source-link" href="#" target="_blank" class="text-amber-700 hover:text-amber-900 font-bold text-sm underline inline-flex items-center gap-1.5 transition-colors">
+                                <span id="modal-lbl-source-btn">Visit Original Recipe Website</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </a>
+                        </div>
+                        
+                        <!-- Trilingual Cross References Array Board -->
+                        <div class="mt-4 pt-4 border-t border-stone-200/50 text-[11px] text-stone-500 space-y-1">
+                            <div class="truncate">🇭🇰 <span id="ref-zh">--</span></div>
+                            <div class="truncate">🇬🇧 <span id="ref-en">--</span></div>
+                            <div class="truncate">🇵🇭 <span id="ref-tl">--</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Metadata Summary Table Box -->
+                    <div class="bg-amber-50/50 border border-amber-100/60 rounded-2xl p-5 flex flex-col justify-center">
+                        <h4 id="modal-summary-title" class="text-xs font-bold uppercase tracking-wider text-amber-900 mb-4 text-center border-b border-amber-200/40 pb-2">Recipe Summary</h4>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between items-center"><span class="text-stone-500" id="lbl-prep">Prep Time</span><span id="val-prep" class="font-semibold text-stone-900">--</span></div>
+                            <div class="flex justify-between items-center"><span class="text-stone-500" id="lbl-cook">Cook Time</span><span id="val-cook" class="font-semibold text-stone-900">--</span></div>
+                            <div class="flex justify-between items-center"><span class="text-stone-500" id="lbl-servings">Servings</span><span id="val-servings" class="font-semibold text-stone-900">--</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Split Layout: Ingredients vs Instructions -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+                    <!-- Ingredients Box Column Area -->
+                    <div class="md:col-span-2">
+                        <h3 class="text-sm font-bold text-stone-900 mb-4 flex items-center gap-2 border-b border-stone-100 pb-2 uppercase tracking-wider" id="modal-lbl-ingredients">Ingredients</h3>
+                        <ul id="modal-ingredients-list" class="space-y-2">
+                            <!-- Dynamic rendering insertions -->
+                        </ul>
+                    </div>
+
+                    <!-- Instructions Step by Step Layout Column Area -->
+                    <div class="md:col-span-3">
+                        <h3 class="text-sm font-bold text-stone-900 mb-4 flex items-center gap-2 border-b border-stone-100 pb-2 uppercase tracking-wider" id="modal-lbl-instructions">Instructions</h3>
+                        <ol id="modal-instructions-list" class="space-y-4">
+                            <!-- Dynamic rendering insertions -->
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Action Footer Panel Box -->
+            <div class="px-6 py-4 bg-stone-50 border-t border-stone-100 flex justify-end">
+                <button onclick="toggleModalVisibility(false)" id="modal-close-btn" class="bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 font-semibold py-2 px-5 rounded-xl text-xs transition-all shadow-sm">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Engine Logic Matrix Script Engine Box -->
+    <script>
+        // Global Application State Matrix Dashboard
+        let currentLang = 'en';
+        let activeCategory = 'all';
+        let searchQuery = '';
+        let selectedRecipe = null;
+
+        // Centralized Trilingual Translation Core Reference Dictionary
+        const UI_TEXT = {
+            zh: { title: '多語言國際食譜庫', subtitle: '精選全球美味 • 三語對照與詳細步驟說明', all: '全部項目', beef: '牛肉料理', chicken: '精選雞肉', pork: '香煎豬肉', lamb: '羊排料理', seafood: '海鮮特蒐', others: '經典主食', prep: '準備時間', cook: '烹調時間', servings: '每份份量', ingredients: '材料清單', instructions: '烹飪步驟說明', searchPlaceholder: '搜尋食譜名稱或關鍵字...', viewRecipe: '查看詳細食譜', close: '關閉視窗', metadata: '食譜摘要指標', sourceHeading: '來源網站連結', visitSource: '前往原始食譜網站' },
+            en: { title: 'Global Flavor Cookbook', subtitle: 'Explore premium recipes with real-time trilingual conversions', all: 'All Recipes', beef: 'Beef', chicken: 'Chicken', pork: 'Pork', lamb: 'Lamb', seafood: 'Seafood', others: 'Others', prep: 'Prep Time', cook: 'Cook Time', servings: 'Servings', ingredients: 'Ingredients', instructions: 'Step-by-Step Instructions', searchPlaceholder: 'Search recipe names...', viewRecipe: 'View Full Recipe', close: 'Close', metadata: 'Recipe Summary', sourceHeading: 'Recipe Source Connection', visitSource: 'Visit Original Recipe Website' },
+            tl: { title: 'Global Flavor Cookbook', subtitle: 'Galugarin ang mga de-kalidad na recipe sa tatlong wika', all: 'Lahat ng Recipe', beef: 'Baka', chicken: 'Manok', pork: 'Baboy', lamb: 'Kordero', seafood: 'Seafood', others: 'Iba pa', prep: 'Oras ng Prep', cook: 'Oras ng Pagluto', servings: 'Selyo/Dami', ingredients: 'Mga Sangkap', instructions: 'Mga Hakbang sa Pagluto', searchPlaceholder: 'Maghanap ng mga recipe...', viewRecipe: 'Tingnan ang Recipe', close: 'Isara', metadata: 'Buod ng Recipe', sourceHeading: 'Koneksyon sa Pinagmulan', visitSource: 'Pumunta sa Orihinal na Website' }
+        };
+
+        // =========================================================================
+        // DATASET ARRAY DECK: COMPLETE REPOSITORIES (15 IN TOTAL) WITH EXTERNAL SOURCE URLS
+        // =========================================================================
+        const DATASET = [
+            {
+                id: 1,
+                category: 'lamb',
+                url: 'https://urbanfarmandkitchen.com/marinated-greek-lamb-chops/',
+                time: { prep: '15 mins', cook: '10 mins', servings: '4' },
+                title: { zh: '希臘醃製羊排', en: 'Marinated Greek Lamb Chops', tl: 'Marinated Greek Lamb Chops (Karne ng Kordero)' },
+                ingredients: {
+                    zh: ['羊排 8塊', '大蒜 4瓣 (壓碎)', '乾牛至 2茶匙', '新鮮檸檬汁 3湯匙', '橄欖油 4湯匙', '鹽和黑胡椒 適量'],
+                    en: ['8 lamb chops', '4 cloves garlic (crushed)', '2 tsp dried oregano', '3 tbsp fresh lemon juice', '4 tbsp olive oil', 'Salt and black pepper to taste'],
+                    tl: ['8 pirasong tadyang ng kordero (lamb chops)', '4 na butil ng bawang (dinikdik)', '2 kutsaritang tuyong oregano', '3 kutsarang sariwang katas ng limon', '4 na kutsarang langis ng oliba', 'Asin at paminta para magpalasa']
+                },
+                instructions: {
+                    zh: ['將大蒜、牛至、檸檬汁、橄欖油、鹽和黑胡椒在一個大碗中混合均勻。', '加入羊排，確保每塊都均勻塗上醃料。蓋上蓋子放入冰箱醃製至少1小時（最好是隔夜）。', '在大火上預熱平底鍋或燒烤架，每面煎3-4分鐘，直到達到所需的熟度。', '離火後靜置5分鐘後即可切開享用。'],
+                    en: ['In a large bowl, whisk together the crushed garlic, dried oregano, lemon juice, olive oil, salt, and black pepper.', 'Add the lamb chops and turn to coat them thoroughly with the marinade. Cover and refrigerate for at least 1 hour, or overnight for best flavor.', 'Heat a grill or grill pan over high heat. Cook the lamb chops for 3-4 minutes per side until they reach your desired level of doneness.', 'Remove from heat and let rest for 5 minutes before serving.'],
+                    tl: ['Sa isang malaking mangkok, paghaluin ang dinikdik na bawang, tuyong oregano, katas ng limon, langis ng oliba, asin, at paminta.', 'Ihalo ang tadyang ng kordero at siguraduhing balot ito ng marinade. Takpan at ilagay sa refrigerator ng hindi bababa sa 1 oras (mas masarap kung magdamag).', 'Painitin ang ihawan o kawali sa malakas na apoy. Iprito o ihawin ang kordero ng 3-4 na minuto bawat gilid.', 'Alisin sa apoy at palamigin muna ng 5 minuto bago isilbi.']
+                }
+            },
+            {
+                id: 2,
+                category: 'seafood',
+                url: 'https://www.hk01.com/article/632659?utm_source=01articlecopy&utm_medium=referral',
+                time: { prep: '25 mins', cook: '15 mins', servings: '4' },
+                title: { zh: '蝦膠釀冬菇', en: 'Shrimp-Stuffed Mushrooms', tl: 'Hipon na may "Shrimp Gel" na Punong Kabute' },
+                ingredients: {
+                    zh: ['鮮香菇 12朵', '鮮蝦仁 200克 (剁成蝦膠)', '肥肉碎 30克 (可選增加滑度)', '生粉 1茶匙', '鹽 1/2茶匙', '胡椒粉和麻油 少許'],
+                    en: ['12 fresh shiitake mushrooms', '200g fresh shrimp (peeled & minced to a fine paste)', '30g minced pork fat (optional for texture)', '1 tsp cornstarch', '1/2 tsp salt', 'Dash of white pepper and sesame oil'],
+                    tl: ['12 pirasong sariwang kabuteng shiitake', '200g sariwang hipon (tinadtad para maging malagkit na paste)', '30g tinadtad na taba ng baboy (opsyonal)', '1 kutsaritang gawgaw (cornstarch)', '1/2 kutsaritang asin', 'Kaunting pamintang puti at langis ng linga']
+                },
+                instructions: {
+                    zh: ['鮮蝦仁洗淨用廚房紙完全擦乾，用刀背拍扁，順時針強力攪拌至起膠，加入肥肉碎、生粉、鹽、胡椒粉及麻油拌勻。', '冬菇去蒂洗淨，抹乾水分，在冬菇內側表面抹上少許生粉（幫助蝦膠黏合不脫落）。', '將適量蝦膠整齊釀入每朵冬菇中，表面用手抹平微拱。', '放入蒸鍋大火蒸10-12分鐘直到熟透，出鍋淋上少許生抽調味即可。'],
+                    en: ['Clean and dry the shrimp thoroughly. Slap with the side of a knife and mince, then beat/stir vigorously in one direction until a sticky paste forms. Mix in pork fat, cornstarch, salt, pepper, and sesame oil.', 'Remove stems from shiitake mushrooms, wipe dry, and dust the inner caps with a little cornstarch to prevent separation during cooking.', 'Stuff a generous amount of shrimp paste into each mushroom cap and smooth out the surface smoothly.', 'Steam over high heat for 10-12 minutes. Serve immediately with a dash of light soy sauce if desired.'],
+                    tl: ['Linisin at patuyuin ang mga hipon gamit ang paper towel. Pitpitin gamit ang gilid ng kutsilyo at tadtarin, pagkatapos ay haluin nang mabilis sa isang direksyon hanggang maging malagkit na paste. Ihalo ang taba ng baboy, gawgaw, asin, paminta, at langis ng linga.', 'Alisin ang tangkay ng mga kabute, patuyuin, at budburan ng kaunting gawgaw ang loob upang hindi humiwalay ang hipon kapag niluluto.', 'Ipakain o ilagay ang sapat na dami ng shrimp paste sa bawat kabute at pantayin ang ibabaw.', 'Ipasawp/patuyo sa singaw (steam) sa malakas na apoy sa loob ng 10-12 minuto. Isilbi agad.']
+                }
+            },
+            {
+                id: 3,
+                category: 'beef',
+                url: 'https://www.hk01.com/%E6%95%99%E7%85%AE/323425/%E8%9B%8B%E7%89%9B%E6%B2%BB%E9%A3%9F%E8%AD%9C-%E8%8C%B6%E9%A4%90%E5%BB%B3%E7%B6%93%E5%85%B8%E7%BE%8E%E9%A3%9F-%E9%B9%B9%E7%89%9B%E8%82%89%E7%82%92%E8%9B%8B3%E7%A7%98%E8%A8%A3-%E7%83%98%E5%BA%95%E7%94%98%E9%A6%99%E4%B8%80%E5%AE%9A%E8%A6%81%E7%85%8E',
+                time: { prep: '10 mins', cook: '5 mins', servings: '1' },
+                title: { zh: '蛋牛治', en: 'Salt-Beef Egg Sandwich', tl: 'Salt-Beef Egg Sandwich (Sandwits ng Itlog at Karne)' },
+                ingredients: {
+                    zh: ['白麵包 2片 (可烘底)', '罐頭鹹牛肉 3湯匙', '雞蛋 2個', '食用油 1湯匙', '白胡椒粉 微量'],
+                    en: ['2 slices of fresh white bread (can be dry toasted)', '3 tbsp canned corned beef / salt beef', '2 large eggs', '1 tbsp cooking oil', 'A pinch of ground white pepper'],
+                    tl: ['2 pirasong puting tinapay (maaaring i-toast)', '3 kutsarang de-latang corned beef / salt beef', '2 malalaking itlog', '1 kutsarang mantika', 'Isang kurot ng pamintang puti']
+                },
+                instructions: {
+                    zh: ['雞蛋打入碗中打散，加入罐頭鹹牛肉及胡椒粉，用叉子將鹹牛肉充分壓碎並與蛋液攪拌均勻。', '平底鍋燒熱下油，倒入鹹牛肉蛋液，用中火煎，快定型時快速劃成厚蛋塊或翻面煎成完整蛋餅。', '將熟度剛好的鹹牛肉煎蛋嫩滑地夾在兩片白麵包中間。', '用利刀沿對角線切成兩個三角形，趁熱享用。'],
+                    en: ['Beat the eggs inside a clean bowl. Add the canned corned beef and white pepper, breaking up the beef thoroughly with a fork to integrate completely with the eggs.', 'Heat cooking oil in a pan over medium heat. Pour in the egg and beef mixture. Pan-fry until the bottom sets, then flip or slide into a thick omelet patty.', 'Place the hot, cooked beef egg mixture securely between the two slices of bread.', 'Cut diagonally into triangles with a sharp knife and serve immediately.'],
+                    tl: ['Batihin ang mga itlog sa isang mangkok. Idagdag ang de-latang corned beef at paminta, durugin ang karne gamit ang tinidor para humalo nang husto sa itlog.', 'Painitin ang mantika sa kawali sa katamtamang apoy. Ibuhos ang pinaghalong itlog at karne. Iprito hanggang sa mabuo ang ilalim, pagkatapos ay baligtarin o i-scramble para maging makapal na patty.', 'Ipit ang mainit na nalutong itlog at karne sa pagitan ng dalawang tinapay.', 'Hiwain sa gitna para maging hugis tatsulok gamit ang matalas na kutsilyo at isilbi agad.']
+                }
+            },
+            {
+                id: 4,
+                category: 'beef',
+                url: 'https://hk.lkk.com/zh-hk/recipes/beef-rolls-with-enoki-mushrooms?language=zh-HK',
+                time: { prep: '15 mins', cook: '10 mins', servings: '2' },
+                title: { zh: '金菇肥牛卷', en: 'Enoki Beef Rolls', tl: 'Enoki Beef Rolls (Baka na may Kabute)' },
+                ingredients: {
+                    zh: ['火鍋肥牛片 12片', '金針菇 1包', "生抽醬油 1湯匙", '優質蠔油 1湯匙', '味醂或白糖 1茶匙', '清水 3湯匙', '蒜蓉 少許'],
+                    en: ['12 thin beef slices (hotpot style collar/shortplate)', '1 pack enoki mushrooms', '1 tbsp light soy sauce', '1 tbsp premium oyster sauce', '1 tsp mirin or sugar', '3 tbsp water', '1 tsp minced garlic'],
+                    tl: ['12 maninipis na hiwa ng baka (hotpot style)', '1 balot ng kabuteng enoki', '1 kutsarang toyo', '1 kutsarang oyster sauce', '1 kutsaritang mirin o asukal', '3 kutsarang tubig', '1 kutsaritang tinadtad na bawang']
+                },
+                instructions: {
+                    zh: ['金針菇切去乾硬根部，洗淨並分成12等份小束。', '取一片肥牛片平鋪，將一束金針菇置於牛片一端，用力緊緊包裹捲起。重複完成所有肉卷。', '在小碗中將生抽、蠔油、味醂（或糖）和清水調和成醬汁備用。', '熱鍋下少許油爆香蒜蓉，接口朝下放入牛肉卷煎至定型，全面翻轉煎至微焦，倒入調好的醬汁燜煮1分鐘至濃稠即可。'],
+                    en: ['Trim off the hard woody root base of the enoki mushrooms, wash clean, and divide into 12 small equal bundles.', 'Lay a slice of beef flat on a clean board. Place one enoki bundle at one edge and roll up tightly. Repeat for all beef slices.', 'Mix light soy sauce, premium oyster sauce, mirin (or sugar), and water evenly inside a small bowl.', 'Heat a splash of oil in a skillet, sauté the garlic, then place the beef rolls seam-side down. Pan-fry until browned, rotate, pour in the sauce, and simmer for 1 minute until glazed.'],
+                    tl: ['Putulin ang matigas na ugat ng kabuteng enoki, hugasan nang mabuti, at hatiin sa 12 maliliit na kumpol.', 'Ilatag ang hiwa ng baka sa malinis na salansanan. Ilagay ang isang kumpol ng enoki sa dulo` at irolyo nang mahigpit. Gawin ito sa lahat ng karne.', 'Paghaluin ang toyo, oyster sauce, mirin (o asukal), at tubig sa isang maliit na mangkok.', 'Painitin ang kaunting mantika sa kawali, igisa ang bawang, at ilagay ang beef rolls (itapat ang dulo sa ilalim). Iprito hanggang magkulay tsokolate, ibuhos ang sarsa, at pakuluan ng 1 minuto.']
+                }
+            },
+            {
+                id: 5,
+                category: 'chicken',
+                url: 'https://hk.lkk.com/zh-hk/recipes/stir-fried-chicken-fillet-with-broccoli-and-peppers?language=zh-HK',
+                time: { prep: '15 mins', cook: '10 mins', servings: '3' },
+                title: { zh: '西蘭花彩椒炒雞柳', en: 'Stir-Fried Chicken Fillet with Broccoli & Peppers', tl: 'Gisadong Pilas ng Manok na may Brokoli at Sili' },
+                ingredients: {
+                    zh: ['雞胸肉 250克 (切長條柳)', '西蘭花 1棵 (切小朵)', '紅黃彩椒 各半個 (切片)', '大蒜 2瓣 (切片)', '生抽 1湯匙', '生粉 1茶匙', '鹽和糖 少許'],
+                    en: ['250g chicken breast (cut into neat strips)', '1 head of broccoli (broken into small florets)', '1/2 red and 1/2 yellow bell pepper (sliced)', '2 cloves garlic (sliced)', '1 tbsp light soy sauce', '1 tsp cornstarch', 'Salt and sugar to taste'],
+                    tl: ['250g pitso ng manok (hiniwa nang pahaba)', '1 buong brokoli (hinati sa maliliit na piraso)', '1/2 pulang sili at 1/2 dilaw na bell pepper (hiniwa)', '2 butil ng bawang (hiniwa sa maninipis)', '1 kutsarang toyo', '1 kutsaritang gawgaw', 'Asin at asukal para magpalasa']
+                },
+                instructions: {
+                    zh: ['雞柳用生抽、生粉和少許油抓勻醃製10分鐘。西蘭花入沸水汆燙1分鐘，撈出沖冷水瀝乾。', '熱鍋下油，放入雞柳大火快速翻炒至表面變白且熟透，盛出備用。', '原鍋補少許油，爆香蒜片，下彩椒片和西蘭花大火翻炒均勻至斷生。', '將雞柳倒回鍋中，調入少許鹽和糖，大火快速顛簸翻炒5秒鐘混勻即可出鍋。'],
+                    en: ['Marinate chicken strips with soy sauce, cornstarch, and a touch of oil for 10 minutes. Blanch broccoli florets in boiling water for 1 minute, drain and cool.', 'Heat oil in a hot wok, stir-fry the chicken strips over high heat until completely cooked through. Remove and set aside.', 'Add a bit more oil to the same wok, sauté the sliced garlic, then add the bell peppers and broccoli. Stir-fry rapidly.', 'Return the chicken to the wok, season with salt and sugar, toss everything quickly on high heat for 5 seconds and plate.'],
+                    tl: ['I-marinate ang manok sa toyo, gawgaw, at kaunting mantika sa loob ng 10 minuto. Ipakulo ang brokoli sa loob ng 1 minuto, patuyuin at palamigin.', 'Painitin ang mantika sa kawali, igisa ang manok sa malakas na apoy hanggang sa maluto nang husto. Alisin muna at itabi.', 'Sa parehong kawali, magdagdag ng kaunting mantika, igisa ang bawang, pagkatapos ay ilagay ang mga bell pepper at brokoli. Haluin nang mabilis.', 'Ibalik ang manok sa kawali, timplahan ng asin at asukal, haluin nang mabilis sa malakas na apoy ng 5 segundo bago isilbi.']
+                }
+            },
+            {
+                id: 6,
+                category: 'chicken',
+                url: 'https://hk.lkk.com/zh-hk/recipes/pan-fried-chicken-wings-with-honey-and-soy-sauce?language=zh-HK',
+                time: { prep: '10 mins', cook: '15 mins', servings: '4' },
+                title: { zh: '蜜糖豉油煎雞翼', en: 'Pan-Fried Chicken Wings with Honey & Soy Sauce', tl: 'Inadobong Pakpak ng Manok na may Pulot at Toyo' },
+                ingredients: {
+                    zh: ['中雞翼 10隻', '生抽 1.5湯匙', '老抽 1/2茶匙 (上色)', '天然蜜糖 2湯匙', '料酒 1茶匙', '生薑 2片'],
+                    en: ['10 pieces chicken mid-joints', '1.5 tbsp light soy sauce', '1/2 tsp dark soy sauce (for rich color)', '2 tbsp raw honey', '1 tsp cooking rice wine', '2 slices fresh ginger'],
+                    tl: ['10 pirasong gitnang bahagi ng pakpak ng manok', '1.5 kutsarang toyo', '1/2 kutsaritang maitim na toyo (para sa magandang kulay)', '2 kutsarang purong pulot (honey)', '1 kutsaritang alak-panluto', '2 hiwa ng sariwang luya']
+                },
+                instructions: {
+                    zh: ['雞翼洗淨用廚房紙徹底吸乾多餘水分，用生抽、老抽和料酒均勻揉搓醃製20分鐘。', '熱平底鍋下油，下薑片，將雞翼平鋪放入鍋中，轉中小火慢煎至兩面呈深金黃色且內部熟透。', '將碗中剩餘的醃雞翼醬汁倒入鍋中，加蓋小火收汁燜煮1-2分鐘。', '關火（或轉至微火），淋入蜜糖快速翻動，使蜜糖均勻裹在每隻雞翼表面呈透亮光澤即可（切勿大火久煮蜜糖，極易發苦燒焦）。'],
+                    en: ['Wash and dry chicken wings completely. Marinate with light soy sauce, dark soy sauce, and cooking wine for at least 20 minutes.', 'Heat oil in a flat non-stick pan, add ginger, and place chicken wings flat. Pan-fry over medium-low heat until both sides turn deep golden brown and cooked.', 'Pour any remaining marinade from the bowl into the pan, cover and simmer over low heat for 1-2 minutes.', 'Turn off the heat (or lower to minimum), drizzle the honey over the wings and toss quickly until glossy. (Never boil honey on high heat as it burns easily).'],
+                    tl: ['Hugasan at patuyuin ang mga pakpak ng manok gamit ang paper towel. I-marinate sa toyo, maitim na toyo, at alak-panluto ng 20 minuto.', 'Painitin ang mantika sa isang non-stick na kawali, ilagay ang luya at i-hanay ang mga pakpak ng manok. Iprito sa katamtamang hina ng apoy hanggang maging ginto ang magkabilang gilid at maluto.', 'Ibuhos ang natitirong marinade mula sa mangkok patungo sa kawali, takpan at pakuluan sa mahinang apoy ng 1-2 minuto.', 'Patayin ang apoy, ibuhos ang pulot (honey) sa ibabaw ng mga pakpak at haluin nang mabilis hanggang maging makintab. (Huwag pakuluan ang pulot sa malakas na apoy dahil madali itong masunog).']
+                }
+            },
+            {
+                id: 7,
+                category: 'beef',
+                url: 'https://www.christinesrecipes.com/',
+                time: { prep: '20 mins', cook: '60 mins', servings: '4' },
+                title: { zh: '韓式燉牛肋骨', en: 'Korean Braised Beef Short Ribs', tl: 'Korean Braised Beef Short Ribs (Nilagang Tadyang ng Baka)' },
+                ingredients: {
+                    zh: ['優質牛肋骨 1公斤', '白蘿蔔 半個 (切大塊)', '胡蘿蔔 1根 (切大塊)', '生抽 6湯匙', '白糖 3湯匙', '料理清酒 2湯匙', '大蒜蓉 2湯匙', '純正麻油 1湯匙', '清水 500毫升'],
+                    en: ['1kg premium beef short ribs', '1/2 white daikon radish (cut into chunks)', '1 carrot (cut into chunks)', '6 tbsp soy sauce', '3 tbsp sugar', '2 tbsp cooking rice wine', '2 tbsp minced garlic', '1 tbsp pure sesame oil', '500ml water'],
+                    tl: ['1kg magandang klase ng tadyang ng baka (beef short ribs)', '1/2 labanos (hinati sa malalaking piraso)', '1 karot (hinati sa malalaking piraso)', '6 kutsarang toyo', '3 kutsarang asukal', '2 kutsarang alak-panluto', '2 kutsarang tinadtad na bawang', '1 kutsarang langis ng linga', "500ml tubig"]
+                },
+                instructions: {
+                    zh: ['牛肋骨浸泡冷水1小時泡出殘留血水，入沸水鍋中大火汆燙5分鐘，撈出徹底洗淨表面浮沫。', '在碗中將生抽、糖、酒、蒜蓉、麻油與水完全混合攪拌均勻調成燉汁。', '將洗淨的牛肋骨和調好的燉汁放入大深鍋中，大火煮沸後轉小火，蓋上鍋蓋慢火燉煮40分鐘。', '加入白蘿蔔和胡蘿蔔塊，稍微翻動，繼續用小火蓋蓋燉煮25-30分鐘，職至肉質軟爛、湯汁自然濃稠即可。'],
+                    en: ['Soak short ribs in cold water for 1 hour to extract deep blood, then blanch in boiling water for 5 minutes. Rinse thoroughly and drain.', 'Combine soy sauce, sugar, cooking wine, minced garlic, sesame oil, and water in a bowl to create the braising liquid.', 'Place the blanched ribs and braising liquid into a heavy deep pot. Bring to a boil, then reduce heat to low and simmer covered for 40 minutes.', 'Add the radish and carrot chunks, stir gently, and continue to simmer covered for another 25-30 minutes until the beef is meltingly tender.'],
+                    tl: ['Ibabad ang tadyang sa malamig na tubig ng 1 oras para maalis ang natitirang dugo, pakuluan sa mainit na tubig ng 5 minuto. Hugasang mabuti at patuyuin.', 'Paghaluin ang toyo, asukal, alak, tinadtad na bawang, langis ng linga, at tubig sa isang mangkok para sa sabaw.', 'Ilagay ang tadyang at sabaw sa isang malaki at makapal na palayok. Pakuluan, pagkatapos ay hinaan ang apoy, takpan, at lutuin ng 40 minuto.', 'Idagdag ang labanos at karot, haluin nang banayad, at ituloy ang pagluluto nang nakatakpan ng 25-30 minuto hanggang sa lumambot nang husto ang baka.']
+                }
+            },
+            {
+                id: 8,
+                category: 'seafood',
+                url: 'https://www.christinesrecipes.com/',
+                time: { prep: '15 mins', cook: '5 mins', servings: '3' },
+                title: { zh: '檸檬蒜香大蝦', en: 'Lemon-Garlic Prawns', tl: 'Hipon sa Bawang at Limon' },
+                ingredients: {
+                    zh: ['大鮮蝦 12隻 (剪洗去大背腺)', '大蒜 5瓣 (切極細蓉)', '無鹽黃油 20克', '新鮮檸檬汁 1.5湯匙', '新鮮歐芹碎 少許', '鹽和黑胡椒粉 各適量'],
+                    en: ['12 large fresh prawns (deveined & shells trimmed)', '5 cloves garlic (finely minced)', '20g unsalted butter', '1.5 tbsp fresh lemon juice', '1 tbsp finely chopped fresh parsley', 'Salt and cracked black pepper to taste'],
+                    tl: ['12 malalaking sariwang hipon (tinanggalan ng dumi sa likod)', '5 butil ng bawang (tinadtad nang pino)', '20g mantikilya (unsalted butter)', '1.5 kutsarang sariwang katas ng limon', '1 kutsarang tinadtad na sariwang parsley', 'Asin at pamintang durog para magpalasa']
+                },
+                instructions: {
+                    zh: ['大蝦洗淨並用廚房紙徹底吸乾多餘水分（否則下鍋會變水煮）。', '熱平底鍋，放入黃油低溫融化，加入細蒜蓉用小火慢炒至散發香味且變微黃。', '調至大火，將大蝦排入鍋中，兩面各高溫煎1.5-2分鐘，至蝦身完全變紅且微微捲曲。', '迅速倒入新鮮檸檬汁，撒入鹽、黑胡椒及歐芹碎，快速顛鍋翻炒均勻，讓醬汁裹滿蝦身即可立即出鍋。'],
+                    en: ['Wash the prawns and pat them completely dry with paper towels to ensure a good sear.', 'Melt butter in a skillet over medium-low heat, add the minced garlic, and sauté until fragrant and slightly translucent.', 'Turn heat up to high, add the prawns in a single layer, and sear for 1.5 to 2 minutes per side until pink and loosely curled.', 'Pour in the fresh lemon juice, season with salt, pepper, and chopped parsley. Toss rapidly for 10 seconds and plate instantly.'],
+                    tl: ['Hugasan ang mga hipon at patuyuin nang husto gamit ang paper towel upang masangkutsa nang maayos.', 'Tunawin ang mantikilya sa kawali sa mahinang apoy, ilagay ang tinadtad na bawang, at igisa hanggang mabango at maging medyo madilaw.', 'Laksan ang apoy, ihanay ang mga hipon sa isang layer, at lutuin ng 1.5 hanggang 2 minuto bawat gilid hanggang mamula at mamaluktot.', 'Ibuhos ang sariwang katas ng limon, timplahan ng asin, paminta, at tinadtad na parsley. Haluin nang mabilis sa loob ng 10 segundo at isilbi agad.']
+                }
+            },
+            {
+                id: 9,
+                category: 'chicken',
+                url: 'https://www.christinesrecipes.com/',
+                time: { prep: '15 mins', cook: '20 mins', servings: '3' },
+                title: { zh: '檸檬蒜香雞腿肉', en: 'Lemon-Garlic Chicken Thighs', tl: 'Hita ng Manok sa Bawang at Limon' },
+                ingredients: {
+                    zh: ['去骨雞腿肉 3塊', '大蒜 4瓣 (壓成泥)', '新鮮檸檬 半個 (榨汁並切薄片)', '優質橄欖油 1湯匙', '乾牛至粉 1茶匙', '食鹽及黑胡椒粉 適量'],
+                    en: ['3 large boneless chicken thighs (skin-on preferred)', '4 cloves garlic (minced into paste)', '1/2 fresh lemon (juiced & sliced thin)', '1 tbsp olive oil', '1 tsp dried oregano', 'Salt and black pepper to taste'],
+                    tl: ['3 malalaking hita ng manok (boneless, mas masarap kung may balat)', '4 na butil ng bawang (dinikdik para maging paste)', '1/2 sariwang limon (pigain ang katas at i-slice ng manipis)', '1 kutsarang langis ng oliba', '1 kutsaritang tuyong oregano', 'Asin at paminta para magpalasa']
+                },
+                instructions: {
+                    zh: ['雞腿肉用廚房紙吸乾，表面均勻抹上鹽、黑胡椒和乾牛至粉，靜置醃製15分鐘。', '熱平底鍋下橄欖油，將雞腿肉皮朝下放入鍋中，用中火慢煎5-6分鐘，直到雞皮變得金黃且非常酥脆。', '翻面繼續煎4-5分鐘，將蒜泥和檸檬薄片投入鍋中空白處炒出強烈香味。', '淋入準備好的檸檬汁，蓋上鍋蓋改小火燜煮2分鐘鎖住肉汁，確保內部完全熟透後起鍋。'],
+                    en: ['Push chicken thighs completely dry. Rub evenly with salt, black pepper, and dried oregano; allow to marinate for 15 minutes.', 'Heat olive oil in a skillet. Place chicken skin-side down and sear over medium heat until crispy and deep golden (approx 5-6 minutes).', 'Flip the thighs and cook for 4-5 minutes. Slide minced garlic and lemon slices into the pan gaps and sauté until aromatic.', 'Drizzle the fresh lemon juice, cover the pan with a lid, and let simmer on low heat for 2 minutes until cooked inside.'],
+                    tl: ['Patuyuin ang hita ng manok gamit ang paper towel. Timplahan ng asin, paminta, at tuyong oregano; i-marinate ng 15 minuto.', 'Painitin ang langis ng oliba sa kawali. Ilagay ang manok (nakatapat ang balat sa ilalim) at lutuin sa katamtamang apoy hanggang lumutong at maging ginto (mga 5-6 minuto).', 'Baligtarin ang mga hita at lutuin ng 4-5 minuto. Ilagay ang bawang at hiwa ng limon sa mga bakanteng espasyo sa kawali at igisa.', 'Ihalo ang sariwang katas ng limon, takpan ang kawali ng takip, at pakuluan sa mahinang apoy ng 2 minuto hanggang maluto ang loob.']
+                }
+            },
+            {
+                id: 10,
+                category: 'beef',
+                url: 'https://www.christinesrecipes.com/',
+                time: { prep: '30 mins', cook: '120 mins', servings: '5' },
+                title: { zh: '清湯牛腩', en: 'Beef Brisket in Clear Broth', tl: 'Nilagang Brisket ng Baka (Clear Broth)' },
+                ingredients: {
+                    zh: ['新鮮牛腩 800克', '大白蘿蔔 1個 (切滾刀大塊)', '老薑片 4片', '青蔥 2根 (打結)', '整粒八角 2個', '優質花椒 1茶匙', '優質陳皮 1小塊', '食鹽 適量', '清水 2公升'],
+                    en: ['800g fresh beef brisket', '1 large white daikon radish (cut into large chunks)', '4 slices old ginger', '2 whole green scallions (knotted)', '2 whole star anise', '1 tsp Sichuan peppercorns', '1 small piece dried tangerine peel', 'Salt to taste', '2L water'],
+                    tl: ['800g sariwang brisket ng baka', "1 malaking labanos (hiniwa sa malalaking piraso)", '4 na hiwa ng matandang luya', '2 buong dahon ng sibuyas (itinali)', '2 pirasong star anise', '1 kutsaritang Sichuan peppercorns', '1 maliit na piraso ng tuyong balat ng dalandan', 'Asin para magpalasa', '2L tubig']
+                },
+                instructions: {
+                    zh: ['牛腩切大方塊，放入冷水鍋中，大火煮沸汆燙5分鐘出血水，撈出在溫水下洗淨所有表面浮沫。', '大深湯鍋中注入2公升清水，將洗淨的牛腩塊、生薑片、蔥結、八角、花椒和陳皮一同投入鍋中。', '大火猛烈燒開後，改微小火，蓋上鍋蓋慢火靜靜燉煮1.5小時，直到牛腩肉質開始轉變軟爛。', '投入白蘿蔔塊，翻動均勻，繼續小火蓋蓋燉煮30分鐘。最後挑出浮面香料，加鹽調味，即可盛碗。'],
+                    en: ['Cut the brisket into large cubes. Place in a pot with cold water, bring to a boil for 5 minutes to release impurities, then remove and wash clean.', 'In a clean large stockpot, combine 2L of water, the brisket, ginger, scallions, star anise, peppercorns, and tangerine peel.', 'Bring to a roaring boil, then immediately reduce heat to low, cover, and let it slow-simmer gently for 1.5 hours until the beef is softening.', 'Add the white radish chunks and simmer covered for another 30 minutes. Fish out the whole spices, season with salt, and serve hot.'],
+                    tl: ['Hiwain ang brisket sa malalaking cubes. Ilagay sa isang palayok na may malamig na tubig, pakuluan ng 5 minuto para lumabas ang dumi, alisin at hugasang mabuti.', 'Sa isang malinis at malaking palayok, pagsamahin ang 2L ng tubig, brisket, luya, dahon ng sibuyas, star anise, peppercorns, at balat ng dalandan.', 'Pakuluan nang malakas, pagkatapos ay hinaan agad ang apoy, takpan, at hayaang kumulo nang banayad ng 1.5 oras hanggang sa lumambot ang baka.', 'Idagdag ang mga hiwa ng labanos at pakuluan nang nakatakip ng isa pang 30 minuto. Alisin ang mga buong rekado, timplahan ng asin, at isilbi habang mainit.']
+                }
+            },
+            {
+                id: 11,
+                category: 'pork',
+                url: 'https://www.christinesrecipes.com/',
+                time: { prep: '20 mins', cook: '45 mins', servings: '4' },
+                title: { zh: '蜜汁烤排骨', en: 'Sticky Baked Pork Ribs', tl: 'Sticky Baked Pork Ribs (Asadong Tadyang ng Baboy)' },
+                ingredients: {
+                    zh: ['整排豬肋排 800克', '李錦記叉燒醬 3湯匙', '優質生抽 1湯匙', '頂級蠔油 1湯匙', '純蜂蜜 2湯匙 (刷表面用)', '大蒜泥 1湯匙'],
+                    en: ['1 full rack of pork ribs (approx 800g)', '3 tbsp commercial Char Siu sauce', '1 tbsp light soy sauce', '1 tbsp premium oyster sauce', '2 tbsp pure honey (for glazing)', '1 tbsp minced garlic'],
+                    tl: ['1 buong rack ng tadyang ng baboy (mga 800g)', '3 kutsarang sarsang Char Siu', '1 kutsarang toyo', '1 kutsarang oyster sauce', '2 kutsarang purong pulot (para sa ibabaw)', '1 kutsarang tinadtad na bawang']
+                },
+                instructions: {
+                    zh: ['排骨洗淨並用廚房紙擦乾。將叉燒醬、生抽、蠔油及蒜泥均勻塗抹排骨全身，放入冰箱密封醃製至少4小時（隔夜最佳）。', '烤箱預熱至190°C (375°F)。', '用大張鋁箔紙將醃好的排骨完全緊密包裹起來，放在烤盤上入烤箱烘烤30分鐘以鎖住所有肉汁。', '小心打開鋁箔紙暴露排骨，在表面雙面均勻刷上一層蜂蜜，繼續赤裸烤10-15分鐘，至表面呈現焦糖化且邊緣微焦即可。'],
+                    en: ['Wash and pat the ribs completely dry. Rub thoroughly with Char Siu sauce, soy sauce, oyster sauce, and minced garlic. Marinate covered for 4 hours or overnight.', 'Preheat your oven to 190°C (375°F).', 'Wrap the ribs securely in a large sheet of aluminum foil and bake for 30 minutes to steam and lock in the precious juices.', 'Unwrap the foil sheet safely, brush the surface generously with honey, and roast uncovered for 10-15 minutes until caramelized and slightly charred.'],
+                    tl: ['Hugasan at patuyuin ang tadyang ng baboy gamit ang paper towel. Pahiran nang husto ng sarsang Char Siu, toyo, oyster sauce, at tinadtad na bawang. I-marinate nang nakatakip ng 4 na oras o magdamag.', 'Painitin ang oven sa 190°C (375°F).', 'Balutin nang maayos ang tadyang sa isang malaking piraso ng aluminum foil at i-bake ng 30 minuto upang kumatas at lumambot.', 'Buksan ang foil nang ligtas, pahiran nang masagana ng pulot (honey) ang ibabaw, at i-bake ng walang takip ng 10-15 minuto hanggang maging malagkit at medyo tustado.']
+                }
+            },
+            {
+                id: 12,
+                category: 'pork',
+                url: 'https://www.christinesrecipes.com/',
+                time: { prep: '15 mins', cook: '40 mins', servings: '4' },
+                title: { zh: '自製蜜汁叉燒', en: 'DIY BBQ Pork (Char Siu)', tl: 'DIY BBQ Pork / Char Siu (Asadong Baboy)' },
+                ingredients: {
+                    zh: ['上等梅頭肉 600克', '現成優質叉燒醬 4湯匙', '廣東料酒 1湯匙', '天然蜂蜜 2湯匙', '新鮮老薑汁 1茶匙'],
+                    en: ['600g premium pork collar / pork butt', '4 tbsp commercial Char Siu sauce', '1 tbsp Cantonese cooking wine', '2 tbsp raw honey', '1 tsp fresh ginger juice'],
+                    tl: ['600g magandang klase ng kasim o pigi ng baboy (pork collar)', '4 na kutsarang sarsang Char Siu', '1 kutsarang alak-panluto (Cantonese)', '2 kutsarang purong pulot', '1 kutsaritang katas ng sariwang luya']
+                },
+                instructions: {
+                    zh: ['將梅頭肉順著紋路切成長條狀厚塊。加入叉燒醬、料酒和老薑汁完全揉勻，置於冰箱冷藏醃製24小時。', '烤箱預熱至200°C (400°F)。將醃好的肉架在烤網上，烤箱下方放置墊有錫紙的烤盤接油。', '入烤箱烘烤20分鐘。取出在兩面均勻刷上一層剩餘的醃肉醬汁，將肉翻面繼續烘烤15分鐘。', '最後取出均勻刷上一層厚厚的蜂蜜，送回烤箱最後高溫烘烤5分鐘，至表面發亮、邊緣微焦。稍放涼後切片。'],
+                    en: ['Cut the pork collar into long, thick uniform strips. Combine with Char Siu sauce, cooking wine, and ginger juice. Marinate inside the fridge for 24 hours.', 'Preheat oven to 200°C (400°F). Arrange the pork on a wire rack placed over a foil-lined baking sheet to catch drippings.', 'Roast for 20 minutes. Remove, brush with the remaining marinade from the bowl, flip the meat over, and roast for another 15 minutes.', 'Brush generously with honey and roast for a final 5 minutes until glossy and slightly charred at the borders. Cool slightly and slice thin.'],
+                    tl: ['Hiwain ang kasim ng baboy sa mahahaba at makakapal na strips. Paghaluin kasama ang sarsang Char Siu, alak-panluto, at katas ng luya. I-marinate sa loob ng refrigerator ng 24 oras.', 'Painitin ang oven sa 200°C (400°F). Ihanay ang baboy sa isang wire rack na may nakasalong foil sa ilalim para sa tulo ng mantika.', 'I-bake ng 20 minuto. Alisin, pahiran ng natitirong marinade mula sa mangkok, baligtarin ang karne, at i-bake ng isa pang 15 minuto.', 'Pahiran nang masagana ng pulot at i-bake sa huling 5 minuto hanggang maging makintab at medyo sunog ang mga dulo. Palamigin nang kaunti bago hiwain ng manipis.']
+                }
+            },
+            {
+                id: 13,
+                category: 'others',
+                url: 'https://www.recipetineats.com/lasagna/',
+                time: { prep: '30 mins', cook: '45 mins', servings: '6' },
+                title: { zh: '義式經典千層麵', en: "World's Best Lasagna", tl: 'Lasagna (Klasikong Lasagna)' },
+                ingredients: {
+                    zh: ['免煮千層麵皮 12片', '頂級牛肉碎 400克', '番茄羅勒意粉醬 500克', '莫扎瑞拉起司碎 300克', '帕馬森起司粉 50克', '洋蔥 半個 (切極碎)', '大蒜 2瓣 (切蓉)'],
+                    en: ['12 lasagna sheets (oven-ready or par-boiled)', '400g lean ground beef', '500g tomato basil marinara sauce', '300g shredded mozzarella cheese', '50g grated parmesan cheese', '1/2 yellow onion (finely chopped)', '2 cloves garlic (minced)'],
+                    tl: ['12 pirasong lasagna sheets (oven-ready o nilaga)', '400g giling na baka', '500g sarsang kamatis na may basil (marinara sauce)', '300g ginayat na kesong mozzarella', '50g kinunot na kesong parmesan', '1/2 sibuyas (tinadtad nang pino)', '2 butil ng bawang (tinadtad)']
+                },
+                instructions: {
+                    zh: ['熱深鍋下油炒香洋蔥碎及蒜蓉，加入牛肉碎大火炒至變色熟透，倒入番茄意粉醬，轉小火慢燉15分鐘製成濃郁肉醬。', '如果使用普通千層麵皮，依包裝說明放入鹽水中煮熟撈出平鋪防黏（免煮麵皮可跳過此步）。', '取一長方形大烤盤，在烤盤底部抹一層薄肉醬，鋪上一層麵皮，再鋪厚肉醬、撒上一大把莫扎瑞拉和帕馬森起司。重複此步驟堆疊共4層。', '在最上層表面撒滿厚厚的起司。放入預熱至190°C (375°F) 的烤箱中烘烤25-30分鐘，直到表面起司金黃起泡即可。'],
+                    en: ['Sauté the chopped onion and garlic in a deep pan, add the ground beef and cook until browned. Pour in the tomato sauce and simmer over low heat for 15 minutes to make the ragu.', 'Cook the lasagna sheets in boiling salted water according to instructions and drain (skip if utilizing oven-ready sheets).', 'In a rectangular baking dish, spread a thin layer of meat sauce, followed by lasagna sheets, a thick layer of sauce, and a generous handful of mozzarella and parmesan. Repeat for 4 full layers.', 'Top the final layer with a heavy coating of mozzarella. Bake in a preheated oven at 190°C (375°F) for 25-30 minutes until golden and bubbling.'],
+                    tl: ['Igisa ang tinadtad na sibuyas at bawang sa isang malalim na kawali, ilagay ang giling na baka hanggang magkulay tsokolate. Ibuhos ang sarsang kamatis at pakuluan sa mahinang apoy ng 15 minuto para gumawa ng ragu.', 'Lutuin ang lasagna sheets sa kumukulong tubig na may asin ayon sa nakasulat sa balot at patuyuin (laktawan ito kung oven-ready ang gamit).', 'Sa isang parihabang tray panlutuan, magpahid ng manipis na sarsang karne sa ilalim, sinundan ng lasagna sheet, makapal na sarsa, at maraming kesong mozzarella at parmesan. Ulitin ito para makagawa ng 4 na layer.', 'Takpan ang pinakaibabaw na layer ng makapal na kesong mozzarella. I-bake sa oven na may init na 190°C (375°F) sa loob ng 25-30 minuto hanggang matunaw at pumula ang keso.']
+                }
+            },
+            {
+                id: 14,
+                category: 'others',
+                url: 'https://cafedelites.com/buttery-garlic-naan-recipe/',
+                time: { prep: '20 mins', cook: '10 mins', servings: '4' },
+                title: { zh: '蒜香牛油烤餅', en: 'Buttery Garlic Naan', tl: 'Buttery Garlic Naan (Tinapay na may Bawang at Mantikilya)' },
+                ingredients: {
+                    zh: ['高筋麵粉 250克', '高活性即發乾酵母 1茶匙', '純原味優格 3湯匙', '溫水 120毫升', '融化黃油 30克', "大蒜蓉 2湯匙", '食鹽 1/2茶匙'],
+                    en: ['250g bread flour or all-purpose flour', '1 tsp instant dry yeast', '3 tbsp plain Greek yogurt', '120ml warm water', '30g melted unsalted butter', '2 tbsp finely minced garlic', '1/2 tsp salt'],
+                    tl: ['250g harina para sa tinapay (bread flour)', '1 kutsaritang instant dry yeast', '3 kutsarang plain Greek yogurt', '120ml maligamgam na tubig', '30g tunaw na mantikilya (unsalted)', '2 kutsarang tinadtad nang pino na bawang', '1/2 kutsaritang asin']
+                },
+                instructions: {
+                    zh: ['將麵粉、即發酵母、鹽、優格和溫水在大碗中混合，揉搓成表面光滑的麵團。蓋上濕布室溫發酵1小時至兩倍大。', '將發酵好的麵團排氣，平均分成4等份，用擀麵棍將每份擀成薄薄的經典水滴狀或橢圓形餅狀。', '在小碗中將融化的熱黃油與極細的大蒜蓉完全混合調勻備用。', '將鑄鐵平底鍋大火燒至極熱（完全不加油），放入擀好的餅。中大火烙至表面鼓起巨大氣泡且底部出現焦斑（約2分鐘），翻面繼續烙1分鐘。出鍋立刻刷上厚厚一層蒜香牛油即可。'],
+                    en: ['Mix the flour, yeast, salt, yogurt, and warm water together in a bowl until it forms a smooth dough. Cover and allow to rise for 1 hour until doubled in volume.', 'Punch down the dough, divide into 4 equal portions, and roll each piece out with a rolling pin into a thin oval teardrop sheet.', 'Combine the melted hot butter and finely minced garlic thoroughly inside a small side bowl.', 'Heat a cast-iron skillet over medium-high heat until hot (completely dry). Place the naan sheet inside. Cook until large charred bubbles balloon on top (about 2 mins), flip and cook 1 minute more. Brush immediately with garlic butter.'],
+                    tl: ['Paghaluin ang harina, yeast, asin, yogurt, at maligamgam na tubig sa isang mangkok hanggang sa maging makinis na kuwarta (dough). Takpan at paalsahin ng 1 oras hanggang sa umalsa ng doble.', 'Pisaing pabalik ang kuwarta, hatiin sa 4 na pantay na bahagi, at i-roll ang bawat piraso gamit ang rolling pin para maging manipis at pabilog na hugis.', 'Paghaluin ang tunaw na mainit na mantikilya at tinadtad na bawang sa isang maliit na mangkok.', 'Painitin ang isang bakal na kawali (cast-iron skillet) sa katamtamang lakas ng apoy (tuyong-tuyo). Ilagay ang naan. Lutuin hanggang magkabula nang tustado ang ibabaw (mga 2 minuto), baligtarin at lutuin ng 1 minuto pa. Pahiran agad ng garlic butter pagkaalis sa apoy.']
+                }
+            },
+            {
+                id: 15,
+                category: 'seafood',
+                url: 'https://www.madewithlau.com/recipes/wonton-noodle-soup',
+                time: { prep: '30 mins', cook: '15 mins', servings: '2' },
+                title: { zh: '鮮蝦雲吞麵', en: 'Wonton Noodle Soup', tl: 'Sopas ng Mami de Wonton (Wonton Noodle Soup)' },
+                ingredients: {
+                    zh: ['港式全蛋生麵 2卷', '優質大雲吞皮 12張', '新鮮大蝦仁 150克', '半肥瘦豬肉碎 50克', '優質高湯或大地魚湯 1公升', '新鮮韭黃 少許 (切段)', '生抽、麻油、鹽 各少許'],
+                    en: ['2 portions fresh Hong Kong style egg noodles', '12 premium wonton wrappers', '150g fresh prawns (peeled and chopped rough)', '50g minced pork collar', '1L high quality chicken or dried flounder broth', 'A few fresh yellow chives (cut into lengths)', 'Soy sauce, pure sesame oil, and salt to taste'],
+                    tl: ['2 portion ng sariwang egg noodles (Hong Kong style)', '12 pirasong magandang kalase ng wonton wrappers', '150g sariwang hipon (binalatan at tinadtad nang magaspang)', '50g giling na baboy', '1L mainam na sabaw ng manok o isda', 'Kaunting sariwang dilaw na kintsay (yellow chives, hiniwa)', 'Toyo, purong langis ng linga, at asin para magpalasa']
+                },
+                instructions: {
+                    zh: ['蝦仁洗淨擦乾與豬肉碎混合，加入少許鹽、生抽、麻油，用手朝同一方向強力攪拌至產生黏性起膠。取雲吞皮將肉餡包裹摺疊成12個金魚尾狀雲吞。', '將大高湯倒入單獨鍋中完全煮開，加入適量鹽調味，保持極微火保溫。', '另燒開一整鍋清澈大沸水，下雲吞大火煮3-4分鐘至完全浮起熟透，撈出置於碗底；隨後下全蛋生麵散開燙煮約1-2分鐘，撈出迅速過冷水（過冷河）秒鐘後再入沸水燙熱，整齊疊在雲吞上方。', '將滾燙的高湯撞入麵碗中，撒上新鮮韭黃段，即可完美上桌。'],
+                    en: ['Combine prawns and minced pork, season with salt, soy sauce, and sesame oil, stirring firmly in one direction until sticky. Wrap the filling tightly into 12 wontons using wrappers.', 'Bring your broth to a rolling simmer inside a dedicated pot and season with salt to taste, keeping warm on low.', 'In a separate deep pot of boiling water, cook wontons for 3-4 minutes until they float and are cooked, then remove to bowl bottoms. Cook egg noodles for 1-2 minutes, rinse in cold water briefly to remove starch, flash reheat in boiling water, and place over wontons.', 'Pour the piping hot broth over the noodles, garnish with the cut yellow chives, and serve immediately.'],
+                    tl: ['Paghaluin ang hipon at giling na baboy, timplahan ng asin, toyo, at langis ng linga, haluin nang maigi sa isang direksyon hanggang maging malagkit. Ibalot nang maayos ang palaman sa 12 wonton wrappers.', 'Pakuluan ang sabaw sa isang hiwalay na palayok at timplahan ng asin ayon sa lasa, panatilihing mainit sa mahinang apoy.', 'Sa isang hiwalay na malalim na palayok ng kumukulong tubig, lutuin ang wontons ng 3-4 na minuto hanggang sa lumutang at maluto, pagkatapos ay ilagay sa ilalim ng mangkok. Lutuin ang egg noodles ng 1-2 minuto, banlawan sa malamig na tubig para maalis ang sebo, ilubog muli sa kumukulong tubig para uminit, at ilagay sa ibabaw ng wontons.', 'Ibuhos ang kumukulong sabaw sa ibabaw ng noodles, lagyan ng hiniwang dilaw na kintsay biling palamuti, at isilbi agad.']
+                }
+            }
+        ];
+
+        // =========================================================================
+        // ENGINE EXECUTION RUNTIMES
+        // =========================================================================
+
+        // Initialize App on DOM Content Loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategoryTabs();
+            setLanguage('en'); 
+        });
+
+        // Dynamic Generation of Category Controls
+        function renderCategoryTabs() {
+            const categories = ['all', 'beef', 'chicken', 'pork', 'lamb', 'seafood', 'others'];
+            const container = document.getElementById('category-tabs-container');
+            
+            container.innerHTML = categories.map(cat => {
+                return `
+                    <button id="tab-${cat}" onclick="setCategory('${cat}')" class="px-4 py-2 rounded-xl text-xs font-semibold shadow-sm border capitalize transition-all">
+                        <span id="tab-text-${cat}">${cat}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Live Language Configuration Driver Engine
+        function setLanguage(lang) {
+            currentLang = lang;
+            
+            // Highlight Selected Button Element state parameters
+            ['zh', 'en', 'tl'].forEach(l => {
+                const btn = document.getElementById(`lang-btn-${l}`);
+                if (l === lang) {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 bg-amber-700 text-white ring-2 ring-amber-700/20";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-white text-stone-700 hover:bg-stone-200/50 border border-stone-200";
+                }
+            });
+
+            // Re-render core localized element headings
+            document.getElementById('ui-title').innerText = UI_TEXT[lang].title;
+            document.getElementById('ui-subtitle').innerText = UI_TEXT[lang].subtitle;
+            document.getElementById('recipe-search').placeholder = UI_TEXT[lang].searchPlaceholder;
+
+            // Re-evaluate Category Tab Inline Labels mapping translation matrices
+            ['all', 'beef', 'chicken', 'pork', 'lamb', 'seafood', 'others'].forEach(cat => {
+                const el = document.getElementById(`tab-text-${cat}`);
+                if (el) el.innerText = UI_TEXT[lang][cat];
+            });
+
+            // Keep Active Tab Highlight Styles Stable during mutation translation shifts
+            updateTabStyles();
+            
+            // Force Redraw Cards Grid Array System mapping selected localization context
+            renderRecipeGrid();
+
+            // Handle Open Modal Synchronization refresh
+            if (selectedRecipe) {
+                syncModalData();
+            }
+        }
+
+        // Active Category Setting Controller Layer
+        function setCategory(category) {
+            activeCategory = category;
+            updateTabStyles();
+            renderRecipeGrid();
+        }
+
+        // Update Visual Matrix across Tab lists
+        function updateTabStyles() {
+            ['all', 'beef', 'chicken', 'pork', 'lamb', 'seafood', 'others'].forEach(cat => {
+                const btn = document.getElementById(`tab-${cat}`);
+                if (!btn) return;
+                if (cat === activeCategory) {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all bg-stone-900 text-white border-stone-900 ring-2 ring-stone-900/10";
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all bg-white text-stone-800 border-stone-200 hover:border-stone-400";
+                }
+            });
+        }
+
+        // Real-time Text Input Search Interceptor
+        function handleSearch(val) {
+            searchQuery = val.toLowerCase().trim();
+            renderRecipeGrid();
+        }
+
+        // Grid Redraw Engine Component Framework
+        function renderRecipeGrid() {
+            const grid = document.getElementById('recipe-grid');
+            
+            // Filter Dataset array matching search criteria parameters
+            const filtered = DATASET.filter(recipe => {
+                const matchesCategory = (activeCategory === 'all' || recipe.category === activeCategory);
+                const matchesSearch = recipe.title[currentLang].toLowerCase().includes(searchQuery) || 
+                                      recipe.title['zh'].toLowerCase().includes(searchQuery) ||
+                                      recipe.title['en'].toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-stone-100 p-8">
+                        <p class="text-sm text-stone-400 font-medium">No records found matching your current query metrics.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(recipe => {
+                const subTitleRef = currentLang === 'zh' ? recipe.title['en'] : recipe.title['zh'];
+
+                return `
+                    <div class="bg-white rounded-2xl border border-stone-200/60 overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col group p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-amber-100 text-amber-900 font-bold px-2.5 py-0.5 rounded-md text-[10px] tracking-wider uppercase border border-amber-200/30 shadow-sm">
+                                ${UI_TEXT[currentLang][recipe.category]}
+                            </span>
+                            <a href="${recipe.url}" target="_blank" class="text-stone-400 hover:text-amber-800 text-xs transition-colors p-1" title="Open Source Link">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </a>
+                        </div>
+
+                        <!-- Card Contents Presentation Frame -->
+                        <div class="flex flex-col flex-grow">
+                            <h3 class="text-base font-bold text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-1 mb-0.5">
+                                ${recipe.title[currentLang]}
+                            </h3>
+                            <p class="text-[11px] text-stone-400 font-medium italic line-clamp-1 mb-5">
+                                ${subTitleRef}
+                            </p>
+
+                            <!-- Stat metrics inline dashboard element -->
+                            <div class="grid grid-cols-3 gap-1.5 py-2 px-2.5 bg-stone-50 rounded-xl text-center text-xs text-stone-700 font-semibold mb-5 mt-auto border border-stone-100">
+                                <div>
+                                    <div class="text-[9px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">${UI_TEXT[currentLang].prep}</div>
+                                    <div class="truncate text-[11px]">${recipe.time.prep}</div>
+                                </div>
+                                <div class="border-x border-stone-200">
+                                    <div class="text-[9px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">${UI_TEXT[currentLang].cook}</div>
+                                    <div class="truncate text-[11px]">${recipe.time.cook}</div>
+                                </div>
+                                <div>
+                                    <div class="text-[9px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">${UI_TEXT[currentLang].servings}</div>
+                                    <div class="truncate text-[11px]">${recipe.time.servings}</div>
+                                </div>
+                            </div>
+
+                            <!-- CTA Element Action Switch -->
+                            <button onclick="openRecipeModal(${recipe.id})" class="w-full bg-amber-50/60 hover:bg-amber-100/80 text-amber-900 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors text-center flex items-center justify-center gap-1.5">
+                                <span>${UI_TEXT[currentLang].viewRecipe}</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Open Modal Interface Window
+        function openRecipeModal(id) {
+            selectedRecipe = DATASET.find(r => r.id === id);
+            if (!selectedRecipe) return;
+
+            syncModalData();
+            toggleModalVisibility(true);
+        }
+
+        // Synchronize Open Modal DOM state elements with current selected object variables
+        function syncModalData() {
+            if (!selectedRecipe) return;
+
+            // Basic Text Node Mappings
+            document.getElementById('modal-badge').innerText = UI_TEXT[currentLang][selectedRecipe.category];
+            document.getElementById('modal-title').innerText = selectedRecipe.title[currentLang];
+            
+            // Source link properties injection
+            const sourceLink = document.getElementById('modal-source-link');
+            sourceLink.href = selectedRecipe.url;
+            document.getElementById('lbl-source-heading').innerText = UI_TEXT[currentLang].sourceHeading;
+            document.getElementById('modal-lbl-source-btn').innerText = UI_TEXT[currentLang].visitSource;
+            
+            // Localized Dynamic String Labels Insertion
+            document.getElementById('modal-summary-title').innerText = UI_TEXT[currentLang].metadata;
+            document.getElementById('lbl-prep').innerText = UI_TEXT[currentLang].prep;
+            document.getElementById('lbl-cook').innerText = UI_TEXT[currentLang].cook;
+            document.getElementById('lbl-servings').innerText = UI_TEXT[currentLang].servings;
+            document.getElementById('modal-lbl-ingredients').innerText = UI_TEXT[currentLang].ingredients;
+            document.getElementById('modal-lbl-instructions').innerText = UI_TEXT[currentLang].instructions;
+            document.getElementById('modal-close-btn').innerText = UI_TEXT[currentLang].close;
+
+            // Value metrics injections
+            document.getElementById('val-prep').innerText = selectedRecipe.time.prep;
+            document.getElementById('val-cook').innerText = selectedRecipe.time.cook;
+            document.getElementById('val-servings').innerText = selectedRecipe.time.servings;
+
+            // Cross references board string settings
+            document.getElementById('ref-zh').innerText = selectedRecipe.title.zh;
+            document.getElementById('ref-en').innerText = selectedRecipe.title.en;
+            document.getElementById('ref-tl').innerText = selectedRecipe.title.tl;
+
+            // Loop Parse Array String Data for Ingredients
+            const ingListContainer = document.getElementById('modal-ingredients-list');
+            ingListContainer.innerHTML = selectedRecipe.ingredients[currentLang].map(ing => {
+                return `
+                    <li class="flex items-start gap-2.5 text-xs text-stone-700 bg-stone-50 p-2.5 rounded-xl border border-stone-200/50 font-medium">
+                        <span class="text-amber-600 mt-0.5">•</span>
+                        <span>${ing}</span>
+                    </li>
+                `;
+            }).join('');
+
+            // Loop Parse Array String Data for Step Instructions
+            const insListContainer = document.getElementById('modal-instructions-list');
+            insListContainer.innerHTML = selectedRecipe.instructions[currentLang].map((step, idx) => {
+                return `
+                    <li class="flex gap-3.5 items-start text-xs text-stone-700 leading-relaxed font-medium">
+                        <span class="bg-amber-100 text-amber-900 font-bold text-[10px] h-5 w-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 shadow-sm border border-amber-200/40">
+                            ${idx + 1}
+                        </span>
+                        <p class="pt-0.5">${step}</p>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        // Toggle Modal Interface Visibility states managing animation frames safely
+        function toggleModalVisibility(show) {
+            const modal = document.getElementById('recipe-modal');
+            const content = document.getElementById('modal-content');
+            
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }, 10);
+                document.body.style.overflow = 'hidden'; 
+            } else {
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.remove('flex');
+                    modal.classList.add('hidden');
+                    selectedRecipe = null;
+                }, 150);
+                document.body.style.overflow = ''; 
+            }
+        }
+
+        // Close Modal via External Backdrop Wrapper clicks interceptor
+        function closeModal(event) {
+            if (event.target.id === 'recipe-modal') {
+                toggleModalVisibility(false);
+            }
+        }
+    </script>
 </body>
 </html>
