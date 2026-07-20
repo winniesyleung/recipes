@@ -1,0 +1,7 @@
+{
+  "buildCommand": "echo 'Static site - no build step'",
+  "outputDirectory": ".",
+  "devCommand": "echo 'No dev server needed'",
+  "cleanUrls": true,
+  "trailingSlash": false
+}
