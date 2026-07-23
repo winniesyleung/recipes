@@ -519,183 +519,7 @@
                     tl: ["Linisin nang maigi ang manok. Alisin ang labis na taba mula sa lukab.", "Sa isang malaking palayok, magdagdag ng tubig, mga hiwa ng luya, mga buhol ng sibuyas sa tagsibol, asin, alak ng Shaoxing. Pakuluan.", "Ibaba ang init hanggang sa mahinang kumulo. Hawakan ang manok sa pamamagitan ng leeg, ibaba sa palayok sa gilid ng dibdib pababa.", "I-poach sa loob ng 12-15 minuto (depende sa laki), hanggang sa matuyo ang katas kapag natusok ang hita.", "Ilipat kaagad ang manok sa ice water bath. Shock para sa 10-15 minuto hanggang sa ganap na lumamig.", "Patuyuin ng mabuti. Pahiran ng sesame oil ang balat ng manok. Itabi.", "Chicken Rice: Mag-init ng mantika sa kawali. Magdagdag ng tinadtad na bawang at luya, iprito hanggang mabango.", "Magdagdag ng kanin, ihalo ng 2 minuto hanggang sa malagyan ng mantika.", "Ilipat sa rice cooker. Magdagdag ng 3 tasang sabaw ng manok, asin, dahon ng pandan. Magluto ng kanin.", "Sauce: Paghaluin ang lahat ng sangkap ng sarsa sa isang mangkok. Ayusin sa panlasa.", "Alisin ang ulo/paa kung nakakabit. Gupitin ang manok sa mga piraso ng paghahatid.", "Ihain ang manok na may kanin ng manok, sarsa, at mga hiwa ng pipino."]
                 }
             },
-        ];
-
-        // =========================================================================
-        // ENGINE EXECUTION RUNTIMES
-        // =========================================================================
-
-        // Initialize App on DOM Content Loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCategoryTabs();
-            setLanguage('en'); 
-        });
-
-        // Dynamic Generation of Category Controls
-        function renderCategoryTabs() {
-            const categories = ['all', 'beef', 'chicken', 'pork', 'lamb', 'seafood', 'others'];
-            const container = document.getElementById('category-tabs-container');
-            
-            container.innerHTML = categories.map(cat => {
-                return `
-                    <button id="tab-${cat}" onclick="setCategory('${cat}')" class="px-4 py-2 rounded-xl text-xs font-semibold shadow-sm border capitalize transition-all">
-                        <span id="tab-text-${cat}">${cat}</span>
-                    </button>
-                `;
-            }).join('');
-        }
-
-        // Live Language Configuration Driver Engine
-        function setLanguage(lang) {
-            currentLang = lang;
-            
-            // Highlight Selected Button Element state parameters
-            ['zh', 'en', 'tl'].forEach(l => {
-                const btn = document.getElementById(`lang-btn-${l}`);
-                if (l === lang) {
-                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 bg-amber-700 text-white ring-2 ring-amber-700/20";
-                } else {
-                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-white text-stone-700 hover:bg-stone-200/50 border border-stone-200";
-                }
-            });
-
-            // Re-render core localized element headings
-            document.getElementById('ui-title').innerText = UI_TEXT[lang].title;
-            document.getElementById('ui-subtitle').innerText = UI_TEXT[lang].subtitle;
-            document.getElementById('recipe-search').placeholder = UI_TEXT[lang].searchPlaceholder;
-
-            // Re-evaluate Category Tab Inline Labels mapping translation matrices
-            ['all', 'beef', 'chicken', 'pork', 'lamb', 'seafood', 'others'].forEach(cat => {
-                const el = document.getElementById(`tab-text-${cat}`);
-                if (el) el.innerText = UI_TEXT[lang][cat];
-            });
-
-            // Keep Active Tab Highlight Styles Stable during mutation translation shifts
-            updateTabStyles();
-            
-            // Force Redraw Cards Grid Array System mapping selected localization context
-            renderRecipeGrid();
-
-            // Handle Open Modal Synchronization refresh
-            if (selectedRecipe) {
-                syncModalData();
-            }
-        }
-
-        // Active Category Setting Controller Layer
-        function setCategory(category) {
-            activeCategory = category;
-            updateTabStyles();
-            renderRecipeGrid();
-        }
-
-        // Update Visual Matrix across Tab lists
-        function updateTabStyles() {
-            ['all', 'beef', 'chicken', 'pork', 'lamb', 'seafood', 'others'].forEach(cat => {
-                const btn = document.getElementById(`tab-${cat}`);
-                if (!btn) return;
-                if (cat === activeCategory) {
-                    btn.className = "px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all bg-stone-900 text-white border-stone-900 ring-2 ring-stone-900/10";
-                } else {
-                    btn.className = "px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all bg-white text-stone-800 border-stone-200 hover:border-stone-400";
-                }
-            });
-        }
-
-        // Real-time Text Input Search Interceptor
-        function handleSearch(val) {
-            searchQuery = val.toLowerCase().trim();
-            renderRecipeGrid();
-        }
-
-        // Grid Redraw Engine Component Framework
-        function renderRecipeGrid() {
-            const grid = document.getElementById('recipe-grid');
-            
-            // Filter Dataset array matching search criteria parameters
-            const filtered = DATASET.filter(recipe => {
-                const matchesCategory = (activeCategory === 'all' || recipe.category === activeCategory);
-                const matchesSearch = recipe.title[currentLang].toLowerCase().includes(searchQuery) || 
-                                      recipe.title['zh'].toLowerCase().includes(searchQuery) ||
-                                      recipe.title['en'].toLowerCase().includes(searchQuery);
-                return matchesCategory && matchesSearch;
-            });
-
-            if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-stone-100 p-8">
-                        <p class="text-sm text-stone-400 font-medium">No records found matching your current query metrics.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = filtered.map(recipe => {
-                const subTitleRef = currentLang === 'zh' ? recipe.title['en'] : recipe.title['zh'];
-
-                return `
-                    <div class="bg-white rounded-2xl border border-stone-200/60 overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col group p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="bg-amber-100 text-amber-900 font-bold px-2.5 py-0.5 rounded-md text-[10px] tracking-wider uppercase border border-amber-200/30 shadow-sm">
-                                ${UI_TEXT[currentLang][recipe.category]}
-                            </span>
-                            <a href="${recipe.url}" target="_blank" class="text-stone-400 hover:text-amber-800 text-xs transition-colors p-1" title="Open Source Link">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                            </a>
-                        </div>
-
-                        <!-- Card Contents Presentation Frame -->
-                        <div class="flex flex-col flex-grow">
-                            <h3 class="text-base font-bold text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-1 mb-0.5">
-                                ${recipe.title[currentLang]}
-                            </h3>
-                            <p class="text-[11px] text-stone-400 font-medium italic line-clamp-1 mb-5">
-                                ${subTitleRef}
-                            </p>
-
-                            <!-- Stat metrics inline dashboard element -->
-                            <div class="grid grid-cols-3 gap-1.5 py-2 px-2.5 bg-stone-50 rounded-xl text-center text-xs text-stone-700 font-semibold mb-5 mt-auto border border-stone-100">
-                                <div>
-                                    <div class="text-[9px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">${UI_TEXT[currentLang].prep}</div>
-                                    <div class="truncate text-[11px]">${recipe.time.prep}</div>
-                                </div>
-                                <div class="border-x border-stone-200">
-                                    <div class="text-[9px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">${UI_TEXT[currentLang].cook}</div>
-                                    <div class="truncate text-[11px]">${recipe.time.cook}</div>
-                                </div>
-                                <div>
-                                    <div class="text-[9px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">${UI_TEXT[currentLang].servings}</div>
-                                    <div class="truncate text-[11px]">${recipe.time.servings}</div>
-                                </div>
-                            </div>
-
-                            <!-- CTA Element Action Switch -->
-                            <button onclick="openRecipeModal(${recipe.id})" class="w-full bg-amber-50/60 hover:bg-amber-100/80 text-amber-900 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors text-center flex items-center justify-center gap-1.5">
-                                <span>${UI_TEXT[currentLang].viewRecipe}</span>
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Open Modal Interface Window
-        function openRecipeModal(id) {
-            selectedRecipe = DATASET.find(r => r.id === id);
-            if (!selectedRecipe) return;
-
-            syncModalData();
-            toggleModalVisibility(true);
-        }
-
-        // Synchronize Open Modal DOM state elements with current selected object variables
-        function syncModalData() {
-            if (!selectedRecipe) return;
-
-            // Basic Text Node Mappings
-            document.getElementById('modal-badge').innerText = UI_TEXT[currentLang][selectedRecipe.category];
-            document.getElementById('modal-title').innerText = selectedRecipe.title[currentLang,
+        ,
     {
                 id: 21,
                 category: 'chicken',
@@ -1002,7 +826,185 @@
                     zh: "涼拌青瓜",
                     en: "Cucumber Salad",
                     tl: "Salad ng pipino"
-                },
+                }
+    ];
+
+        // =========================================================================
+        // ENGINE EXECUTION RUNTIMES
+        // =========================================================================
+
+        // Initialize App on DOM Content Loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategoryTabs();
+            setLanguage('en'); 
+        });
+
+        // Dynamic Generation of Category Controls
+        function renderCategoryTabs() {
+            const categories = ['all', 'beef', 'chicken', 'pork', 'lamb', 'seafood', 'others'];
+            const container = document.getElementById('category-tabs-container');
+            
+            container.innerHTML = categories.map(cat => {
+                return `
+                    <button id="tab-${cat}" onclick="setCategory('${cat}')" class="px-4 py-2 rounded-xl text-xs font-semibold shadow-sm border capitalize transition-all">
+                        <span id="tab-text-${cat}">${cat}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Live Language Configuration Driver Engine
+        function setLanguage(lang) {
+            currentLang = lang;
+            
+            // Highlight Selected Button Element state parameters
+            ['zh', 'en', 'tl'].forEach(l => {
+                const btn = document.getElementById(`lang-btn-${l}`);
+                if (l === lang) {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 bg-amber-700 text-white ring-2 ring-amber-700/20";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-white text-stone-700 hover:bg-stone-200/50 border border-stone-200";
+                }
+            });
+
+            // Re-render core localized element headings
+            document.getElementById('ui-title').innerText = UI_TEXT[lang].title;
+            document.getElementById('ui-subtitle').innerText = UI_TEXT[lang].subtitle;
+            document.getElementById('recipe-search').placeholder = UI_TEXT[lang].searchPlaceholder;
+
+            // Re-evaluate Category Tab Inline Labels mapping translation matrices
+            ['all', 'beef', 'chicken', 'pork', 'lamb', 'seafood', 'others'].forEach(cat => {
+                const el = document.getElementById(`tab-text-${cat}`);
+                if (el) el.innerText = UI_TEXT[lang][cat];
+            });
+
+            // Keep Active Tab Highlight Styles Stable during mutation translation shifts
+            updateTabStyles();
+            
+            // Force Redraw Cards Grid Array System mapping selected localization context
+            renderRecipeGrid();
+
+            // Handle Open Modal Synchronization refresh
+            if (selectedRecipe) {
+                syncModalData();
+            }
+        }
+
+        // Active Category Setting Controller Layer
+        function setCategory(category) {
+            activeCategory = category;
+            updateTabStyles();
+            renderRecipeGrid();
+        }
+
+        // Update Visual Matrix across Tab lists
+        function updateTabStyles() {
+            ['all', 'beef', 'chicken', 'pork', 'lamb', 'seafood', 'others'].forEach(cat => {
+                const btn = document.getElementById(`tab-${cat}`);
+                if (!btn) return;
+                if (cat === activeCategory) {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all bg-stone-900 text-white border-stone-900 ring-2 ring-stone-900/10";
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all bg-white text-stone-800 border-stone-200 hover:border-stone-400";
+                }
+            });
+        }
+
+        // Real-time Text Input Search Interceptor
+        function handleSearch(val) {
+            searchQuery = val.toLowerCase().trim();
+            renderRecipeGrid();
+        }
+
+        // Grid Redraw Engine Component Framework
+        function renderRecipeGrid() {
+            const grid = document.getElementById('recipe-grid');
+            
+            // Filter Dataset array matching search criteria parameters
+            const filtered = DATASET.filter(recipe => {
+                const matchesCategory = (activeCategory === 'all' || recipe.category === activeCategory);
+                const matchesSearch = recipe.title[currentLang].toLowerCase().includes(searchQuery) || 
+                                      recipe.title['zh'].toLowerCase().includes(searchQuery) ||
+                                      recipe.title['en'].toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-stone-100 p-8">
+                        <p class="text-sm text-stone-400 font-medium">No records found matching your current query metrics.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(recipe => {
+                const subTitleRef = currentLang === 'zh' ? recipe.title['en'] : recipe.title['zh'];
+
+                return `
+                    <div class="bg-white rounded-2xl border border-stone-200/60 overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col group p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-amber-100 text-amber-900 font-bold px-2.5 py-0.5 rounded-md text-[10px] tracking-wider uppercase border border-amber-200/30 shadow-sm">
+                                ${UI_TEXT[currentLang][recipe.category]}
+                            </span>
+                            <a href="${recipe.url}" target="_blank" class="text-stone-400 hover:text-amber-800 text-xs transition-colors p-1" title="Open Source Link">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </a>
+                        </div>
+
+                        <!-- Card Contents Presentation Frame -->
+                        <div class="flex flex-col flex-grow">
+                            <h3 class="text-base font-bold text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-1 mb-0.5">
+                                ${recipe.title[currentLang]}
+                            </h3>
+                            <p class="text-[11px] text-stone-400 font-medium italic line-clamp-1 mb-5">
+                                ${subTitleRef}
+                            </p>
+
+                            <!-- Stat metrics inline dashboard element -->
+                            <div class="grid grid-cols-3 gap-1.5 py-2 px-2.5 bg-stone-50 rounded-xl text-center text-xs text-stone-700 font-semibold mb-5 mt-auto border border-stone-100">
+                                <div>
+                                    <div class="text-[9px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">${UI_TEXT[currentLang].prep}</div>
+                                    <div class="truncate text-[11px]">${recipe.time.prep}</div>
+                                </div>
+                                <div class="border-x border-stone-200">
+                                    <div class="text-[9px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">${UI_TEXT[currentLang].cook}</div>
+                                    <div class="truncate text-[11px]">${recipe.time.cook}</div>
+                                </div>
+                                <div>
+                                    <div class="text-[9px] text-stone-400 font-bold uppercase tracking-wider mb-0.5">${UI_TEXT[currentLang].servings}</div>
+                                    <div class="truncate text-[11px]">${recipe.time.servings}</div>
+                                </div>
+                            </div>
+
+                            <!-- CTA Element Action Switch -->
+                            <button onclick="openRecipeModal(${recipe.id})" class="w-full bg-amber-50/60 hover:bg-amber-100/80 text-amber-900 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors text-center flex items-center justify-center gap-1.5">
+                                <span>${UI_TEXT[currentLang].viewRecipe}</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Open Modal Interface Window
+        function openRecipeModal(id) {
+            selectedRecipe = DATASET.find(r => r.id === id);
+            if (!selectedRecipe) return;
+
+            syncModalData();
+            toggleModalVisibility(true);
+        }
+
+        // Synchronize Open Modal DOM state elements with current selected object variables
+        function syncModalData() {
+            if (!selectedRecipe) return;
+
+            // Basic Text Node Mappings
+            document.getElementById('modal-badge').innerText = UI_TEXT[currentLang][selectedRecipe.category];
+            document.getElementById('modal-title').innerText = selectedRecipe.title[currentLang,
+
                 ingredients: {
                     zh: ["青瓜1條",
                     "鹽2茶匙",
