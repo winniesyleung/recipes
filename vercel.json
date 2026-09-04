@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "buildCommand": "echo 'Static site - no build needed'",
+  "outputDirectory": ".",
+  "devCommand": "python -m http.server 8080",
+  "framework": null,
+  "rewrites": [
+    { "source": "/daily_tasks.json", "destination": "/daily_tasks.json" }
+  ],
+  "headers": [
+    { "source": "/daily_tasks.json", "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }] }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "categories": {
+    "personal": {
+      "display_name": "🧘 Personal",
+      "order": 1
+    },
+    "fund_raising": {
+      "display_name": "💰 Fund Raising",
+      "order": 2
+    },
+    "venture_building": {
+      "display_name": "🚀 Venture Building",
+      "order": 3
+    }
+  },
+  "tasks": [
+    {
+      "id": "task_001",
+      "text": "Morning meditation (10 min)",
+      "category": "personal",
+      "completed": false,
+      "created_at": "2026-09-04",
+      "due_date": null,
+      "priority": "high"
+    },
+    {
+      "id": "task_002",
+      "text": "Review portfolio company metrics (Lirvana Labs, Otto BVI, TMAX)",
+      "category": "venture_building",
+      "completed": false,
+      "created_at": "2026-09-04",
+      "due_date": null,
+      "priority": "high"
+    },
+    {
+      "id": "task_003",
+      "text": "Prepare investor update deck for Q3",
+      "category": "fund_raising",
+      "completed": false,
+      "created_at": "2026-09-04",
+      "due_date": "2026-09-15",
+      "priority": "medium"
+    },
+    {
+      "id": "task_004",
+      "text": "Schedule catch-up with Prateek (Lirvana Labs)",
+      "category": "venture_building",
+      "completed": false,
+      "created_at": "2026-09-04",
+      "due_date": "2026-09-10",
+      "priority": "medium"
+    },
+    {
+      "id": "task_005",
+      "text": "Gym session - strength training",
+      "category": "personal",
+      "completed": false,
+      "created_at": "2026-09-04",
+      "due_date": null,
+      "priority": "low"
+    },
+    {
+      "id": "task_006",
+      "text": "Follow up with Village Global on Lirvana Labs intro",
+      "category": "fund_raising",
+      "completed": false,
+      "created_at": "2026-09-04",
+      "due_date": "2026-09-07",
+      "priority": "high"
+    },
+    {
+      "id": "task_007",
+      "text": "Research founder pack idea integration with Otto BVI & TMAX",
+      "category": "venture_building",
+      "completed": false,
+      "created_at": "2026-09-04",
+      "due_date": null,
+      "priority": "medium"
+    },
+    {
+      "id": "task_008",
+      "text": "Evening walk + podcast",
+      "category": "personal",
+      "completed": false,
+      "created_at": "2026-09-04",
+      "due_date": null,
+      "priority": "low"
+    }
+  ],
+  "last_updated": "2026-09-04",
+  "version": 1
+}
