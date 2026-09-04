@@ -1,15 +1,18 @@
 {
   "categories": {
     "personal": {
-      "display_name": "🧘 Personal",
+      "label": "🧘 Personal",
+      "color": "#00d4aa",
       "order": 1
     },
     "fund_raising": {
-      "display_name": "💰 Fund Raising",
+      "label": "💰 Fund Raising",
+      "color": "#ffd700",
       "order": 2
     },
     "venture_building": {
-      "display_name": "🚀 Venture Building",
+      "label": "🚀 Venture Building",
+      "color": "#ff6b6b",
       "order": 3
     }
   },
