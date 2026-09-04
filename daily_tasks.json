@@ -16,8 +16,8 @@
   "tasks": [
     {
       "id": "task_001",
-      "text": "Morning meditation (10 min)",
-      "category": "personal",
+      "text": "Terms for Red Sea",
+      "category": "fund_raising",
       "completed": false,
       "created_at": "2026-09-04",
       "due_date": null,
@@ -25,8 +25,8 @@
     },
     {
       "id": "task_002",
-      "text": "Review portfolio company metrics (Lirvana Labs, Otto BVI, TMAX)",
-      "category": "venture_building",
+      "text": "Deck on Venture Building",
+      "category": "fund_raising",
       "completed": false,
       "created_at": "2026-09-04",
       "due_date": null,
@@ -34,57 +34,39 @@
     },
     {
       "id": "task_003",
-      "text": "Prepare investor update deck for Q3",
+      "text": "One-pager on TM partnership",
       "category": "fund_raising",
       "completed": false,
       "created_at": "2026-09-04",
-      "due_date": "2026-09-15",
-      "priority": "medium"
+      "due_date": null,
+      "priority": "high"
     },
     {
       "id": "task_004",
-      "text": "Schedule catch-up with Prateek (Lirvana Labs)",
-      "category": "venture_building",
+      "text": "TM Startup Box",
+      "category": "fund_raising",
       "completed": false,
       "created_at": "2026-09-04",
-      "due_date": "2026-09-10",
+      "due_date": null,
       "priority": "medium"
     },
     {
       "id": "task_005",
-      "text": "Gym session - strength training",
-      "category": "personal",
-      "completed": false,
-      "created_at": "2026-09-04",
-      "due_date": null,
-      "priority": "low"
-    },
-    {
-      "id": "task_006",
-      "text": "Follow up with Village Global on Lirvana Labs intro",
+      "text": "Pinnacle",
       "category": "fund_raising",
-      "completed": false,
-      "created_at": "2026-09-04",
-      "due_date": "2026-09-07",
-      "priority": "high"
-    },
-    {
-      "id": "task_007",
-      "text": "Research founder pack idea integration with Otto BVI & TMAX",
-      "category": "venture_building",
       "completed": false,
       "created_at": "2026-09-04",
       "due_date": null,
       "priority": "medium"
     },
     {
-      "id": "task_008",
-      "text": "Evening walk + podcast",
+      "id": "task_006",
+      "text": "IS applications",
       "category": "personal",
       "completed": false,
       "created_at": "2026-09-04",
       "due_date": null,
-      "priority": "low"
+      "priority": "high"
     }
   ],
   "last_updated": "2026-09-04",
