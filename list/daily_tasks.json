@@ -70,8 +70,26 @@
       "created_at": "2026-09-04",
       "due_date": null,
       "priority": "high"
+    },
+    {
+      "id": "task_007",
+      "text": "Apply for a US visa",
+      "category": "personal",
+      "completed": false,
+      "created_at": "2026-10-07",
+      "due_date": null,
+      "priority": "high"
+    },
+    {
+      "id": "task_008",
+      "text": "International driving license",
+      "category": "personal",
+      "completed": false,
+      "created_at": "2026-10-07",
+      "due_date": null,
+      "priority": "high"
     }
   ],
-  "last_updated": "2026-09-04",
+  "last_updated": "2026-10-07",
   "version": 1
 }
